@@ -153,6 +153,15 @@ pub struct IdleArgs {
     pub(crate) _extensible: (),
 }
 
+/// Resource properties
+#[derive(Debug)]
+pub struct ResourceProperties {
+    /// a task local resource
+    pub task_local: bool,
+    /// a lock free (exclusive resource)
+    pub lock_free: bool,
+}
+
 /// An early (compile time initialized) resource
 #[derive(Debug)]
 pub struct Resource {
@@ -180,6 +189,9 @@ pub struct LateResource {
 
     /// The type of this resource
     pub ty: Box<Type>,
+
+    /// Resource properties
+    pub properties: ResourceProperties,
 
     pub(crate) _extensible: (),
 }
