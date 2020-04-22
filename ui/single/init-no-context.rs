@@ -1,7 +1,7 @@
 #![no_main]
 
 #[mock::app]
-const APP: () = {
+mod APP {
     #[init]
     fn init() {}
-};
+}

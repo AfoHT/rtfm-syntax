@@ -1,7 +1,7 @@
 #![no_main]
 
 #[mock::app]
-const APP: () = {
+mod APP {
     #[init]
     unsafe fn init(_: init::Context) {}
-};
+}

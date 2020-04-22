@@ -1,7 +1,7 @@
 #![no_main]
 
 #[mock::app]
-const APP: () = {
+mod APP {
     #[task(priority = 0)]
     fn foo(_: foo::Context) {}
-};
+}

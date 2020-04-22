@@ -9,7 +9,7 @@ fn ast_extern_interrupt_core() {
     let (app, _analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 extern "C" {
                     #[core = 0]
                     fn a();
@@ -20,7 +20,7 @@ fn ast_extern_interrupt_core() {
                     #[core = 1]
                     fn b();
                 }
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -54,12 +54,12 @@ fn unused_resource() {
     let (_app, analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 struct Resources {
                     #[init(0)]
                     x: i32,
                 }
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -78,10 +78,10 @@ fn unused_task() {
     let (_app, _analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 #[task(core = 1)]
                 fn foo(_: foo::Context) {}
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -97,7 +97,7 @@ fn late_resources_split() {
     let (_app, analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 struct Resources {
                     x: i32,
                     y: i32,
@@ -112,7 +112,7 @@ fn late_resources_split() {
                 fn init(_: init::Context) -> init::LateResources {
                     ..
                 }
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -136,7 +136,7 @@ fn late_resources() {
     let (_app, analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 struct Resources {
                     x: i32,
                 }
@@ -145,7 +145,7 @@ fn late_resources() {
                 fn init(_: init::Context) -> init::LateResources {
                     ..
                 }
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -164,7 +164,7 @@ fn location_resource() {
     let (_app, analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 struct Resources {
                     #[init(0)]
                     x: i32,
@@ -177,7 +177,7 @@ fn location_resource() {
 
                 #[task(core = 1, resources = [y])]
                 fn bar(_: bar::Context) {}
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -215,7 +215,7 @@ fn initialization_barrier() {
     let (_app, analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 struct Resources {
                     x: i32,
                 }
@@ -229,7 +229,7 @@ fn initialization_barrier() {
                 fn idle(_: idle::Context) -> ! {
                     ..
                 }
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -249,7 +249,7 @@ fn send_spawn() {
     let (_app, analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 #[task(core = 0, spawn = [bar])]
                 fn foo(_: foo::Context) {
                     ..
@@ -259,7 +259,7 @@ fn send_spawn() {
                 fn bar(_: bar::Context, x: X) {
                     ..
                 }
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -279,7 +279,7 @@ fn send_schedule() {
     let (_app, analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 #[task(core = 0, schedule = [bar])]
                 fn foo(_: foo::Context) {
                     ..
@@ -289,7 +289,7 @@ fn send_schedule() {
                 fn bar(_: bar::Context, x: X) {
                     ..
                 }
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -310,7 +310,7 @@ fn sync() {
     let (_app, analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 struct Resources {
                     #[init(0)]
                     x: i32,
@@ -325,7 +325,7 @@ fn sync() {
                 fn idle(_: idle::Context) -> ! {
                     ..
                 }
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -347,7 +347,7 @@ fn timer_queue() {
     let (_app, analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 #[task(core = 0, schedule = [bar, baz])]
                 fn foo(_: foo::Context) {}
 
@@ -356,7 +356,7 @@ fn timer_queue() {
 
                 #[task(core = 1)]
                 fn baz(_: baz::Context) {}
-            };
+            }
         ),
         Settings {
             parse_cores: true,
@@ -374,7 +374,7 @@ fn shared() {
     let (app, analysis) = crate::parse2(
         quote!(cores = 2),
         quote!(
-            const APP: () = {
+            mod APP {
                 struct Resources {
                     #[init(0)]
                     #[shared]
@@ -386,7 +386,7 @@ fn shared() {
                     #[shared]
                     static mut Y: [u8; 128] = [0; 128];
                 }
-            };
+            }
         ),
         Settings {
             parse_cores: true,

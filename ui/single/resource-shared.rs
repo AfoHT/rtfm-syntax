@@ -1,9 +1,9 @@
 #![no_main]
 
 #[mock::app]
-const APP: () = {
+mod APP {
     struct Resources {
         #[shared]
         x: u32,
     }
-};
+}

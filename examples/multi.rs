@@ -1,7 +1,7 @@
 //! Full syntax for multi core
 
 #[mock::app(cores = 2, parse_cores, parse_binds)]
-const APP: () = {
+mod APP {
     struct Resources {
         a: u32,
         b: u32,
@@ -61,4 +61,4 @@ const APP: () = {
 
     #[task(core = 1, binds = UART0)]
     fn i1(_: i1::Context) {}
-};
+}

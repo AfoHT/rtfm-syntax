@@ -1,7 +1,7 @@
 #![no_main]
 
 #[mock::app(cores = 2, parse_cores)]
-const APP: () = {
+mod APP {
     struct Resources {
         a: u32,
         b: u32,
@@ -12,4 +12,4 @@ const APP: () = {
 
     #[init(core = 1, late = [a])]
     fn init(_: init::Context) -> init::LateResources {}
-};
+}

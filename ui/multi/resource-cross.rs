@@ -1,7 +1,7 @@
 #![no_main]
 
 #[mock::app(cores = 2, parse_cores)]
-const APP: () = {
+mod APP {
     struct Resources {
         x: u32,
     }
@@ -11,4 +11,4 @@ const APP: () = {
 
     #[task(core = 1, resources = [x])]
     fn bar(_: bar::Context) {}
-};
+}
