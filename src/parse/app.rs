@@ -132,6 +132,7 @@ impl App {
         let mut resources = Map::new();
         let mut hardware_tasks = Map::new();
         let mut software_tasks = Map::new();
+        let mut user_imports = vec![];
 
         let mut extern_interrupts = ExternInterrupts::new();
 
@@ -372,7 +373,10 @@ impl App {
                         }
                     }
                 }
-
+                Item::Use(itemuse_) => {
+                    // Store the user provided use-statements
+                    user_imports.push(itemuse_.clone());
+                }
                 _ => {
                     return Err(parse::Error::new(
                         item.span(),
@@ -392,6 +396,7 @@ impl App {
 
             late_resources,
             resources,
+            user_imports,
             hardware_tasks,
             software_tasks,
 
