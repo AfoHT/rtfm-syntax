@@ -2,6 +2,7 @@
 
 #[mock::app]
 mod APP {
+    #[resources]
     struct Resources {
         x: u32,
     }

@@ -2,6 +2,7 @@
 
 #[mock::app(cores = 2, parse_cores, parse_binds)]
 mod APP {
+    #[resources]
     struct Resources {
         a: u32,
         b: u32,

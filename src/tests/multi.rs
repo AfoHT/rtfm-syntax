@@ -55,6 +55,7 @@ fn unused_resource() {
         quote!(cores = 2),
         quote!(
             mod APP {
+                #[resources]
                 struct Resources {
                     #[init(0)]
                     x: i32,
@@ -98,6 +99,7 @@ fn late_resources_split() {
         quote!(cores = 2),
         quote!(
             mod APP {
+                #[resources]
                 struct Resources {
                     x: i32,
                     y: i32,
@@ -137,6 +139,7 @@ fn late_resources() {
         quote!(cores = 2),
         quote!(
             mod APP {
+                #[resources]
                 struct Resources {
                     x: i32,
                 }
@@ -165,6 +168,7 @@ fn location_resource() {
         quote!(cores = 2),
         quote!(
             mod APP {
+                #[resources]
                 struct Resources {
                     #[init(0)]
                     x: i32,
@@ -216,6 +220,7 @@ fn initialization_barrier() {
         quote!(cores = 2),
         quote!(
             mod APP {
+                #[resources]
                 struct Resources {
                     x: i32,
                 }
@@ -311,6 +316,7 @@ fn sync() {
         quote!(cores = 2),
         quote!(
             mod APP {
+                #[resources]
                 struct Resources {
                     #[init(0)]
                     x: i32,
@@ -375,6 +381,7 @@ fn shared() {
         quote!(cores = 2),
         quote!(
             mod APP {
+                #[resources]
                 struct Resources {
                     #[init(0)]
                     #[shared]
