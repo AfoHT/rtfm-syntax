@@ -1,5 +1,5 @@
 error: this resource is initialized by core 0
-  --> $DIR/init-late-twice.rs:13:30
+  --> $DIR/init-late-twice.rs:14:30
    |
-13 |     #[init(core = 1, late = [a])]
+14 |     #[init(core = 1, late = [a])]
    |                              ^

@@ -1,5 +1,5 @@
 error: `#[shared]` can only be used in multi-core mode
- --> $DIR/resource-shared.rs:6:9
+ --> $DIR/resource-shared.rs:7:9
   |
-6 |         #[shared]
+7 |         #[shared]
   |         ^

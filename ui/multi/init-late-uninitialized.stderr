@@ -1,5 +1,5 @@
 error: this resource is not being initialized
- --> $DIR/init-late-uninitialized.rs:8:9
+ --> $DIR/init-late-uninitialized.rs:9:9
   |
-8 |         c: u32,
+9 |         c: u32,
   |         ^

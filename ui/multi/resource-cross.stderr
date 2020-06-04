@@ -1,5 +1,5 @@
 error: resources can NOT be exclusively accessed (`&mut-`) from different cores
-  --> $DIR/resource-cross.rs:12:35
+  --> $DIR/resource-cross.rs:13:35
    |
-12 |     #[task(core = 1, resources = [x])]
+13 |     #[task(core = 1, resources = [x])]
    |                                   ^

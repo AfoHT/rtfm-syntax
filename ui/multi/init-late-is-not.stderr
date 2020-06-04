@@ -1,5 +1,5 @@
 error: this is not a late resource
-  --> $DIR/init-late-is-not.rs:11:30
+  --> $DIR/init-late-is-not.rs:12:30
    |
-11 |     #[init(core = 0, late = [b])]
+12 |     #[init(core = 0, late = [b])]
    |                              ^
