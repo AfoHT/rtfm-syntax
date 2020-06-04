@@ -3,7 +3,7 @@
 use core::ops::Deref;
 use std::collections::BTreeMap;
 
-use syn::{Attribute, Expr, Ident, Pat, PatType, Path, Stmt, Type, ItemUse};
+use syn::{Attribute, Expr, Ident, Pat, PatType, Path, Stmt, Type, Item, ItemUse};
 
 use crate::{Core, Map, Set};
 
@@ -31,6 +31,9 @@ pub struct App {
 
     /// User imports
     pub user_imports: Vec<ItemUse>,
+
+    /// User code
+    pub user_code: Vec<Item>,
 
     /// Hardware tasks: `#[task(binds = ..)]`s
     pub hardware_tasks: Map<HardwareTask>,
