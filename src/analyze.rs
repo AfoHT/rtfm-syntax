@@ -14,24 +14,25 @@ pub(crate) fn app(app: &App) -> Analysis {
     if !app.late_resources.is_empty() {
         let mut resources = app.late_resources.keys().cloned().collect::<BTreeSet<_>>();
         let mut rest = None;
-        for (&id, init) in &app.inits {
+        if let Some(init) = &app.inits.first() {
             if init.args.late.is_empty() {
                 // this was checked in the `check` pass
                 debug_assert!(rest.is_none());
 
-                rest = Some(id);
+                rest = Some(());
             } else {
-                let late_resources = late_resources.entry(id).or_default();
+                //let late_resources = late_resources.entry(0).or_default();
+                let mut late_resources = Vec::new();
 
                 for name in &init.args.late {
-                    late_resources.insert(name.clone());
+                    late_resources.push(name.clone());
                     resources.remove(name);
                 }
             }
         }
 
-        if let Some(rest) = rest {
-            late_resources.insert(rest, resources);
+        if let Some(_rest) = rest {
+            late_resources.push(resources);
         }
     }
 
@@ -49,16 +50,14 @@ pub(crate) fn app(app: &App) -> Analysis {
 
     let mut ownerships = Ownerships::new();
     let mut sync_types = SyncTypes::new();
-    for (id, prio, name, access) in app.resource_accesses() {
+    for (prio, name, access) in app.resource_accesses() {
         let res = app.resource(name).expect("UNREACHABLE").0;
 
         // (e)
         // Add each resource to locations
         locations.insert(
             name.clone(),
-            Location::Owned {
-                id,
-            },
+            Location::Owned,
         );
 
         // (c)
@@ -75,7 +74,7 @@ pub(crate) fn app(app: &App) -> Analysis {
                         };
 
                         if access.is_shared() {
-                            sync_types.entry(id).or_default().insert(res.ty.clone());
+                            sync_types.insert(res.ty.clone());
                         }
                     }
 
@@ -108,7 +107,7 @@ pub(crate) fn app(app: &App) -> Analysis {
     // All resources shared with `init` (ownership != None) need to be `Send`
     for name in app
         .inits
-        .values()
+        .iter()
         .flat_map(|init| init.args.resources.keys())
     {
         if let Some(ownership) = ownerships.get(name) {
@@ -122,12 +121,11 @@ pub(crate) fn app(app: &App) -> Analysis {
     }
 
     // Initialize the timer queues
-    let mut timer_queues = TimerQueues::new();
-    for (scheduler_id, _scheduler_prio, name) in app.schedule_calls() {
+    let mut tq = TimerQueue::default();
+    for (_, name) in app.schedule_calls() {
         let schedulee = &app.software_tasks[name];
         let schedulee_prio = schedulee.args.priority;
 
-        let tq = timer_queues.entry(scheduler_id).or_default();
         tq.tasks.insert(name.clone());
 
         // the handler priority must match the priority of the highest priority schedulee
@@ -138,12 +136,11 @@ pub(crate) fn app(app: &App) -> Analysis {
     }
 
     // g. Ceiling analysis of free queues (consumer end point) -- first pass
-    // h. Ceiling analysis of the channels (producer end point) -- first pass
+    // h. Ceiling analysis of the channels (producer end point) -- first pass (#TODO MULTICORE)
     // j. Send analysis
     let mut free_queues = FreeQueues::new();
-    for (spawner_id, spawner_prio, name) in app.spawn_calls() {
+    for (spawner_prio, name) in app.spawn_calls() {
         let spawnee = &app.software_tasks[name];
-        let spawnee_id = spawnee.args.id;
         let spawnee_prio = spawnee.args.priority;
 
         let mut must_be_send = false;
@@ -151,7 +148,8 @@ pub(crate) fn app(app: &App) -> Analysis {
         let fq = free_queues
             .entry(name.clone())
             .or_default()
-            .entry(spawner_id)
+            //#TODO
+            .entry(0)
             .or_default();
 
         if let Some(prio) = spawner_prio {
@@ -174,14 +172,16 @@ pub(crate) fn app(app: &App) -> Analysis {
 
         if must_be_send {
             {
-                let send_types = send_types.entry(spawner_id).or_default();
+                //#TODO
+                let send_types = send_types.entry(0).or_default();
 
                 spawnee.inputs.iter().for_each(|input| {
                     send_types.insert(input.ty.clone());
                 });
             }
 
-            let send_types = send_types.entry(spawnee_id).or_default();
+            //#TODO
+            let send_types = send_types.entry(0).or_default();
 
             spawnee.inputs.iter().for_each(|input| {
                 send_types.insert(input.ty.clone());
@@ -190,23 +190,22 @@ pub(crate) fn app(app: &App) -> Analysis {
     }
 
     // k. Ceiling analysis of free queues (consumer end point) -- second pass
-    // l. Ceiling analysis of the channels (producer end point) -- second pass
+    // l. Ceiling analysis of the channels (producer end point) -- second pass (#TODO MULTICORE)
     // m. Ceiling analysis of the timer queue
     // n. Spawn barriers analysis (schedule edition)
     // o. Send analysis
-    for (scheduler_id, scheduler_prio, name) in app.schedule_calls() {
+
+    for (scheduler_prio, name) in app.schedule_calls() {
         let schedulee = &app.software_tasks[name];
-        let schedulee_id = schedulee.args.core;
         let schedulee_prio = schedulee.args.priority;
 
         let mut must_be_send = false;
 
-        let tq = timer_queues.get_mut(&scheduler_id).expect("UNREACHABLE");
 
         let fq = free_queues
             .entry(name.clone())
             .or_default()
-            .entry(scheduler_id)
+            .entry(0)
             .or_default();
 
         if let Some(prio) = scheduler_prio {
@@ -232,14 +231,15 @@ pub(crate) fn app(app: &App) -> Analysis {
 
         if must_be_send {
             {
-                let send_types = send_types.entry(scheduler_id).or_default();
+                let send_types = send_types.entry(0).or_default();
 
                 schedulee.inputs.iter().for_each(|input| {
                     send_types.insert(input.ty.clone());
                 });
             }
 
-            let send_types = send_types.entry(schedulee_id).or_default();
+            //#TODO
+            let send_types = send_types.entry(0).or_default();
 
             schedulee.inputs.iter().for_each(|input| {
                 send_types.insert(input.ty.clone());
@@ -248,13 +248,11 @@ pub(crate) fn app(app: &App) -> Analysis {
     }
 
     // Compute the capacity of the timer queues
-    for tq in timer_queues.values_mut() {
-        tq.capacity = tq
-            .tasks
-            .iter()
-            .map(|name| app.software_tasks[name].args.capacity)
-            .sum();
-    }
+    tq.capacity = tq
+        .tasks
+        .iter()
+        .map(|name| app.software_tasks[name].args.capacity)
+        .sum();
 
     Analysis {
         free_queues,
@@ -263,7 +261,7 @@ pub(crate) fn app(app: &App) -> Analysis {
         ownerships,
         send_types,
         sync_types,
-        timer_queues,
+        timer_queue: tq,
     }
 }
 
@@ -305,15 +303,15 @@ pub struct Analysis {
     /// These types must implement the `Sync` trait
     pub sync_types: SyncTypes,
 
-    /// Timer queues
-    pub timer_queues: TimerQueues,
+    /// Timer queue
+    pub timer_queue: TimerQueue,
 }
 
 /// All free queues, keyed by task and then by Id
 pub type FreeQueues = IndexMap<Task, BTreeMap<Id, Ceiling>>;
 
-/// Late resources, keyed by the core that initializes them
-pub type LateResources = BTreeMap<Id, BTreeSet<Resource>>;
+/// Late resources, wrapped in a vector
+pub type LateResources = Vec<BTreeSet<Resource>>;
 
 /// Location of all *used* resources
 pub type Locations = IndexMap<Resource, Location>;
@@ -325,10 +323,8 @@ pub type Ownerships = IndexMap<Resource, Ownership>;
 pub type SendTypes = BTreeMap<Id, Set<Box<Type>>>;
 
 /// These types must implement the `Sync` trait
-pub type SyncTypes = BTreeMap<Id, Set<Box<Type>>>;
-
-/// Timer queues, keyed by Id
-pub type TimerQueues = BTreeMap<Id, TimerQueue>;
+//pub type SyncTypes = BTreeMap<Id, Set<Box<Type>>>;
+pub type SyncTypes = Set<Box<Type>>;
 
 /// The timer queue
 #[derive(Debug)]
@@ -406,12 +402,10 @@ impl Ownership {
 #[derive(Clone, Debug, PartialEq)]
 pub enum Location {
     /// resource that resides in `id`
-    Owned {
-        /// The Id where this resource is located
-        id: u8,
-    },
+    Owned
 }
 
+/*
 impl Location {
     /// If resource is owned this returns the Id owning it
     pub fn id(&self) -> Option<u8> {
@@ -420,3 +414,4 @@ impl Location {
         }
     }
 }
+*/
