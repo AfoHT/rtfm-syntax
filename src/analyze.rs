@@ -136,7 +136,6 @@ pub(crate) fn app(app: &App) -> Analysis {
     }
 
     // g. Ceiling analysis of free queues (consumer end point) -- first pass
-    // h. Ceiling analysis of the channels (producer end point) -- first pass (#TODO MULTICORE)
     // j. Send analysis
     let mut free_queues = FreeQueues::new();
     for (spawner_prio, name) in app.spawn_calls() {
@@ -190,7 +189,6 @@ pub(crate) fn app(app: &App) -> Analysis {
     }
 
     // k. Ceiling analysis of free queues (consumer end point) -- second pass
-    // l. Ceiling analysis of the channels (producer end point) -- second pass (#TODO MULTICORE)
     // m. Ceiling analysis of the timer queue
     // n. Spawn barriers analysis (schedule edition)
     // o. Send analysis
