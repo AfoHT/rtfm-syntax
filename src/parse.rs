@@ -16,7 +16,7 @@ use syn::{
 };
 
 use crate::{
-    ast::{App, AppArgs, HardwareTaskArgs, InitArgs, SoftwareTaskArgs},
+    ast::{App, AppArgs, HardwareTaskArgs, IdleArgs, SoftwareTaskArgs},
     Either, Settings,
 };
 
@@ -63,10 +63,10 @@ impl Parse for Input {
     }
 }
 
-fn init_idle_args(tokens: TokenStream2) -> parse::Result<InitArgs> {
-    (|input: ParseStream<'_>| -> parse::Result<InitArgs> {
+fn idle_args(tokens: TokenStream2) -> parse::Result<IdleArgs> {
+    (|input: ParseStream<'_>| -> parse::Result<IdleArgs> {
         if input.is_empty() {
-            return Ok(InitArgs::default());
+            return Ok(IdleArgs::default());
         }
 
         let mut late = None;
@@ -122,7 +122,7 @@ fn init_idle_args(tokens: TokenStream2) -> parse::Result<InitArgs> {
             let _: Token![,] = content.parse()?;
         }
 
-        Ok(InitArgs {
+        Ok(IdleArgs {
             late: late.unwrap_or_default(),
 
             resources: resources.unwrap_or_default(),

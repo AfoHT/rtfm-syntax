@@ -33,20 +33,14 @@ impl App {
     pub(crate) fn resource_accesses(
         &self,
     ) -> impl Iterator<Item = (Option<Priority>, &Ident, Access)> {
-        self.inits
+        self.idles
             .iter()
-            .flat_map(|init| {
-                init.args
-                    .resources
-                    .iter()
-                    .map(move |(name, access)| (None, name, *access))
-            })
-            .chain(self.idles.iter().flat_map(|idle| {
+            .flat_map(|idle| {
                 idle.args
                     .resources
                     .iter()
                     .map(move |(name, access)| (Some(0), name, *access))
-            }))
+            })
             .chain(self.hardware_tasks.values().flat_map(|task| {
                 task.args
                     .resources

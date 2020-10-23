@@ -11,8 +11,8 @@ use syn::{
 use super::Input;
 use crate::{
     ast::{
-        App, AppArgs, ExternInterrupt, ExternInterrupts, HardwareTask, Idle, IdleArgs, Init,
-        InitArgs, LateResource, Resource, SoftwareTask,
+        App, AppArgs, CustomArg, ExternInterrupt, ExternInterrupts, HardwareTask, Idle, IdleArgs,
+        Init, LateResource, Resource, SoftwareTask,
     },
     parse::util,
     Either, Map, Set, Settings,
@@ -196,13 +196,11 @@ impl App {
             match item {
                 Item::Fn(mut item) => {
                     let span = item.sig.ident.span();
-                    if let Some(pos) = item
+                    if let Some(_) = item
                         .attrs
                         .iter()
                         .position(|attr| util::attr_eq(attr, "init"))
                     {
-                        let args = InitArgs::parse(item.attrs.remove(pos).tokens)?;
-
                         // If an init function already exists, error
                         if !inits.is_empty() {
                             return Err(parse::Error::new(
@@ -213,7 +211,7 @@ impl App {
 
                         check_ident(&item.sig.ident)?;
 
-                        inits.push(Init::parse(args, item)?);
+                        inits.push(Init::parse(item)?);
                     } else if let Some(pos) = item
                         .attrs
                         .iter()

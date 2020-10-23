@@ -109,7 +109,7 @@ impl<'a> Context<'a> {
         match *self {
             Context::HardwareTask(name) => !app.hardware_tasks[name].args.resources.is_empty(),
             Context::Idle => !app.idles.first().unwrap().args.resources.is_empty(),
-            Context::Init => !app.inits.first().unwrap().args.resources.is_empty(),
+            Context::Init => false,
             Context::SoftwareTask(name) => !app.software_tasks[name].args.resources.is_empty(),
         }
     }

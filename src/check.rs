@@ -45,26 +45,6 @@ pub fn app(app: &App) -> parse::Result<()> {
         }
     }
 
-    // Check that init only has `Access::Exclusive` resources
-    // Check that late resources have NOT been assigned to `init`
-    if let Some(init) = &app.inits.first() {
-        for (name, access) in &init.args.resources {
-            if app.late_resources.contains_key(name) {
-                return Err(parse::Error::new(
-                    name.span(),
-                    "late resources can NOT be assigned to `init`",
-                ));
-            }
-
-            if access.is_shared() {
-                return Err(parse::Error::new(
-                    name.span(),
-                    "`init` has direct exclusive access to resources; use `x` instead of `&x` ",
-                ));
-            }
-        }
-    }
-
     // Check that all late resources are covered by `init::LateResources`
     let late_resources_set = app.late_resources.keys().collect::<HashSet<_>>();
     if !late_resources_set.is_empty() {

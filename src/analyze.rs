@@ -13,22 +13,8 @@ pub(crate) fn app(app: &App) -> Result<Analysis, syn::Error> {
     // a. Initialization of resources
     let mut late_resources = LateResources::new();
     if !app.late_resources.is_empty() {
-        let mut resources = app.late_resources.keys().cloned().collect::<BTreeSet<_>>();
-        let mut rest = false;
-        if let Some(init) = &app.inits.first() {
-            if init.args.late.is_empty() {
-                rest = true;
-            } else {
-                let mut late_resources = Vec::new();
-
-                for name in &init.args.late {
-                    late_resources.push(name.clone());
-                    resources.remove(name);
-                }
-            }
-        }
-
-        if rest {
+        let resources = app.late_resources.keys().cloned().collect::<BTreeSet<_>>();
+        if let Some(_init) = &app.inits.first() {
             late_resources.push(resources);
         }
     }
@@ -241,15 +227,6 @@ pub(crate) fn app(app: &App) -> Result<Analysis, syn::Error> {
             .unwrap_or(false)
         {
             send_types.insert(res.ty.clone());
-        }
-    }
-
-    // All resources shared with `init` (ownership != None) need to be `Send`
-    for name in app.inits.iter().flat_map(|init| init.args.resources.keys()) {
-        if let Some(ownership) = ownerships.get(name) {
-            if *ownership != owned_by_idle {
-                send_types.insert(app.resources[name].ty.clone());
-            }
         }
     }
 

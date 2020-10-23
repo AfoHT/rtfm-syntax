@@ -79,9 +79,6 @@ pub type Idles = Vec<Idle>;
 /// The `init`-ialization function
 #[derive(Debug)]
 pub struct Init {
-    /// `init` context metadata
-    pub args: InitArgs,
-
     /// Attributes that will apply to this `init` function
     pub attrs: Vec<Attribute>,
 
@@ -96,20 +93,6 @@ pub struct Init {
 
     /// The statements that make up this `init` function
     pub stmts: Vec<Stmt>,
-
-    pub(crate) _extensible: (),
-}
-
-/// `init` context metadata
-#[derive(Debug, Default)]
-pub struct InitArgs {
-    /// Late resources that will be initialized
-    ///
-    /// NOTE do not use this field for codegen; use `Analysis.late_resources` instead
-    pub late: Set<Ident>,
-
-    /// Resources that can be accessed from this context
-    pub resources: Resources,
 
     pub(crate) _extensible: (),
 }
@@ -139,8 +122,13 @@ pub struct Idle {
 }
 
 /// `idle` context metadata
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct IdleArgs {
+    /// Late resources that will be initialized
+    ///
+    /// NOTE do not use this field for codegen; use `Analysis.late_resources` instead
+    pub late: Set<Ident>,
+
     /// Resources that can be accessed from this context
     pub resources: Resources,
 
