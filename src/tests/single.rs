@@ -202,34 +202,6 @@ fn send_late_resource() {
 }
 
 #[test]
-fn send_shared_with_init() {
-    // resources shared with `init` must be `Send`
-    let (_app, analysis) = crate::parse2(
-        quote!(),
-        quote!(
-            mod app {
-                #[resources]
-                struct Resources {
-                    #[init(0)]
-                    x: i32,
-                }
-
-                #[init(resources = [x])]
-                fn init(_: init::Context) -> init::LateResources {}
-
-                #[task(resources = [x])]
-                fn foo(_: foo::Context) {}
-            }
-        ),
-        Settings::default(),
-    )
-    .unwrap();
-
-    let ty = analysis.send_types.iter().next().unwrap();
-    assert_eq!(quote!(#ty).to_string(), "i32");
-}
-
-#[test]
 fn not_sync() {
     // `static` resources shared between same priority tasks don't need a `Sync` bound
     let (_app, analysis) = crate::parse2(
