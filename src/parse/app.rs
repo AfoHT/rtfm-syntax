@@ -196,11 +196,13 @@ impl App {
             match item {
                 Item::Fn(mut item) => {
                     let span = item.sig.ident.span();
-                    if let Some(_) = item
+                    if let Some(pos) = item
                         .attrs
                         .iter()
                         .position(|attr| util::attr_eq(attr, "init"))
                     {
+                        // Fail if init has any arguments
+                        let args = item.attrs.remove(pos).tokens)?;
                         // If an init function already exists, error
                         if !inits.is_empty() {
                             return Err(parse::Error::new(
